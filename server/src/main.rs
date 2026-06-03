@@ -11,6 +11,7 @@ use crate::{
     udp::start_receive_loop,
 };
 
+mod error;
 mod generator;
 mod monitor;
 mod server;
@@ -46,7 +47,11 @@ fn main() -> Result<()> {
                 let clients = Arc::clone(&holder);
 
                 let snd = Arc::clone(&socket);
-                thread::spawn(move || handle_client(stream, snd, clients));
+                thread::spawn(move || {
+                    if let Err(e) = handle_client(stream, snd, clients) {
+                        println!("client finished with error: {:?}", e);
+                    }
+                });
             }
             Err(e) => eprintln!("Connection failed: {}", e),
         }

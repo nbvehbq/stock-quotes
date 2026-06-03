@@ -258,6 +258,7 @@ dependencies = [
  "anyhow",
  "quote 0.1.0",
  "rand",
+ "thiserror",
 ]
 
 [[package]]

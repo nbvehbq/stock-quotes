@@ -1,30 +1,23 @@
 use std::{
-    sync::{Arc, Mutex, TryLockError},
+    sync::{Arc, Mutex},
     time::Duration,
 };
 
 use crate::Storage;
 
+/// Запускает мониторинг клиентов.
+/// Не может завершатся ошибкой, поэтому ждет захвата мьютекса (unwrap())
+/// и не генерит ошибку при неудачном захвате
 pub fn start_monitoring(clients: Arc<Mutex<Storage>>) {
+    println!("Monitoring started");
+
     loop {
-        match clients.try_lock() {
-            Ok(mut guard) => {
-                guard.retain(|_, (tx, last_ping)| {
-                    if last_ping.elapsed() > Duration::from_secs(5) {
-                        println!("Should droped here! {:?}", tx);
-                        false
-                    } else {
-                        true
-                    }
-                });
-            }
-            Err(TryLockError::WouldBlock) => {
-                println!("Monitor: Mutex is CURRENTLY locked by another thread.");
-            }
-            Err(TryLockError::Poisoned(_)) => {
-                println!("Monitor: Mutex is poisoned (a thread panicked while holding it).");
-            }
+        {
+            let mut guard = clients.lock().unwrap();
+
+            guard.retain(|_, (_, last_ping)| last_ping.elapsed() < Duration::from_secs(5));
         }
+
         std::thread::sleep(Duration::from_secs(2));
     }
 }

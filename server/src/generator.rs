@@ -6,7 +6,7 @@ use std::{
     fs::File,
     io::{BufRead, BufReader},
     path::PathBuf,
-    sync::{Arc, Mutex, TryLockError},
+    sync::{Arc, Mutex},
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
@@ -76,39 +76,23 @@ impl QuoteGenerator {
         })
     }
 
+    /// Запускает генерацию тикетов.
+    /// Не может завершатся ошибкой, поэтому ждет захвата мьютекса (unwrap())
+    /// и не генерит ошибку при неудачном захвате
     pub fn run(self, interval: Duration, clients: Arc<Mutex<Storage>>) {
         loop {
-            match clients.try_lock() {
-                Ok(guard) => {
-                    // println!("Generator: Mutex was NOT locked");
-                    for ticker in self.tickers.keys() {
-                        let Some(quote) = self.generate_quote(ticker) else {
-                            // will never happen
-                            continue;
-                        };
+            {
+                let mut guard = clients.lock().unwrap();
 
-                        for (addr, (tx, _)) in guard.iter() {
-                            match tx.send(quote.clone()) {
-                                Ok(_) => {
-                                    println!("Send to addr: {}", addr);
-                                }
-                                Err(e) => {
-                                    println!("Send to chanell error: {}", e);
-                                }
-                            }
-                        }
+                for ticker in self.tickers.keys() {
+                    let Some(quote) = self.generate_quote(ticker) else {
+                        // will never happen
+                        continue;
+                    };
 
-                        // guard.retain(|_, (tx, _)| tx.send(quote.clone()).is_ok());
-                    }
-                }
-                Err(TryLockError::WouldBlock) => {
-                    println!("Generator: Mutex is CURRENTLY locked by another thread.");
-                }
-                Err(TryLockError::Poisoned(_)) => {
-                    println!("Generator: Mutex is poisoned (a thread panicked while holding it).");
+                    guard.retain(|_, (tx, _)| tx.send(quote.clone()).is_ok());
                 }
             }
-
             std::thread::sleep(interval);
         }
     }

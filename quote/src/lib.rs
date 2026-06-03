@@ -1,7 +1,7 @@
 use crate::error::QuoteError;
 use serde::{Deserialize, Serialize};
 
-mod error;
+pub mod error;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StockQuote {

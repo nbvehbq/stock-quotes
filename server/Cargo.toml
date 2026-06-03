@@ -7,3 +7,4 @@ edition = "2024"
 quote = { path = "../quote" }
 anyhow = "1"
 rand = "0.10"
+thiserror = "2"
