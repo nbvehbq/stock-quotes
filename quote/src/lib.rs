@@ -1,3 +1,5 @@
+use core::fmt;
+
 use crate::error::QuoteError;
 use serde::{Deserialize, Serialize};
 
@@ -18,5 +20,15 @@ impl StockQuote {
 
     pub fn to_json_string(&self) -> Result<String, QuoteError> {
         serde_json::to_string(self).map_err(QuoteError::Convert)
+    }
+}
+
+impl fmt::Display for StockQuote {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}: price: {} volume: {}, time: {}",
+            self.ticker, self.price, self.volume, self.timestamp
+        )
     }
 }

@@ -78,11 +78,11 @@ impl QuoteGenerator {
 
     /// Запускает генерацию тикетов.
     /// Не может завершатся ошибкой, поэтому ждет захвата мьютекса (unwrap())
-    /// и не генерит ошибку при неудачном захвате
     pub fn run(self, interval: Duration, clients: Arc<Mutex<Storage>>) {
         loop {
             {
                 let mut guard = clients.lock().unwrap();
+                log::debug!("generator ticked. Client len: {}", guard.len());
 
                 for ticker in self.tickers.keys() {
                     let Some(quote) = self.generate_quote(ticker) else {

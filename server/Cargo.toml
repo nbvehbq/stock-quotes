@@ -8,3 +8,6 @@ quote = { path = "../quote" }
 anyhow = "1"
 rand = "0.10"
 thiserror = "2"
+clap = { version = "4", features = ["derive"] }
+log = "0.4"
+env_logger = "0.11"

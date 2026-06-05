@@ -33,11 +33,13 @@ pub fn handle_client(
                     let tickers = parts.next();
 
                     if let (Some(addr), Some(tickers)) = (addr, tickers) {
-                        println!("STREAM: {:?} - {}", addr, tickers);
+                        log::info!("got command:");
+                        log::info!("STREAM: {:?} - {}", addr, tickers);
 
                         let (tx, rx) = mpsc::channel::<StockQuote>();
-                        let mut guard = clients.lock().unwrap();
-                        // .map_err(|e| QuoteServerError::Lock("handle_client".to_string()))?;
+                        let mut guard = clients
+                            .try_lock()
+                            .map_err(|e| QuoteServerError::Lock(e.to_string()))?;
 
                         guard.insert(addr, (tx, Instant::now()));
 
@@ -47,9 +49,11 @@ pub fn handle_client(
                         std::thread::spawn(move || {
                             start_send_loop(socket, rx, &addr.to_string(), tickers)
                         });
+                        log::info!("send thread started");
 
                         "OK\n".to_string()
                     } else {
+                        log::info!("wrong `STREAM command`");
                         "NOK".to_string()
                     }
                 }

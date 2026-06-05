@@ -16,6 +16,7 @@ pub fn start_receive_loop(
         match socket.recv_from(&mut buf) {
             Ok((size, src_addr)) => {
                 if &buf[..size] == b"PING" {
+                    log::debug!("Got PING from address: {src_addr}");
                     let mut guard = clients
                         .try_lock()
                         .map_err(|e| QuoteServerError::Lock(e.to_string()))?;
