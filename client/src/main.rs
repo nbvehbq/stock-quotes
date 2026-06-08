@@ -1,3 +1,7 @@
+#![warn(missing_docs)]
+
+//! This is StockQoute client
+
 use std::{
     fs::File,
     io::{BufRead, BufReader, Write},

@@ -12,12 +12,14 @@ use std::{
 
 use crate::Storage;
 
+/// QuoteGenerator represent randow quote generator
 #[derive(Debug, Clone)]
 pub struct QuoteGenerator {
     tickers: HashMap<String, f64>,
 }
 
 impl QuoteGenerator {
+    /// Create generator use default tickers or tickers file
     pub fn new(path: Option<PathBuf>) -> Result<Self> {
         let mut rng = rand::rng();
 
@@ -81,7 +83,7 @@ impl QuoteGenerator {
     pub fn run(self, interval: Duration, clients: Arc<Mutex<Storage>>) {
         loop {
             {
-                let mut guard = clients.lock().unwrap();
+                let guard = clients.lock().unwrap();
                 log::debug!("generator ticked. Client len: {}", guard.len());
 
                 for ticker in self.tickers.keys() {
@@ -90,7 +92,11 @@ impl QuoteGenerator {
                         continue;
                     };
 
-                    guard.retain(|_, (tx, _)| tx.send(quote.clone()).is_ok());
+                    for (_, (tx, _)) in guard.iter() {
+                        if let Err(e) = tx.send(quote.clone()) {
+                            log::error!("error at gen send: {} ", e);
+                        }
+                    }
                 }
             }
             std::thread::sleep(interval);

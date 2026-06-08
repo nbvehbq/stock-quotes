@@ -8,6 +8,7 @@ use quote::StockQuote;
 use crate::error::QuoteServerError;
 use crate::{Storage, udp::start_send_loop};
 
+/// Handle new client connection
 pub fn handle_client(
     stream: TcpStream,
     socket: Arc<UdpSocket>,

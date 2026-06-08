@@ -7,6 +7,7 @@ use crate::Storage;
 use crate::error::QuoteServerError;
 use quote::StockQuote;
 
+/// Start receive PING signal from clients
 pub fn start_receive_loop(
     socket: Arc<UdpSocket>,
     clients: Arc<Mutex<Storage>>,
@@ -30,6 +31,7 @@ pub fn start_receive_loop(
     }
 }
 
+/// Read channel with generated quotes and resend quotes to client
 pub fn start_send_loop(
     socket: Arc<UdpSocket>,
     rx: Receiver<StockQuote>,

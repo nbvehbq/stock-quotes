@@ -5,4 +5,5 @@ use std::time::Instant;
 
 use quote::StockQuote;
 
+/// Storage is a alias to complex type
 pub type Storage = HashMap<SocketAddr, (Sender<StockQuote>, Instant)>;

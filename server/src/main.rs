@@ -1,3 +1,7 @@
+#![warn(missing_docs)]
+
+//! This crate is QuoteServer
+
 use anyhow::Result;
 use clap::Parser;
 use std::{

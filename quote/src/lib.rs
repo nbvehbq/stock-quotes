@@ -1,23 +1,35 @@
+#![warn(missing_docs)]
+
+//! This crate describe stock quote object and methods for Serialize/Deserialize it
+
 use core::fmt;
 
 use crate::error::QuoteError;
 use serde::{Deserialize, Serialize};
 
+/// Own errors
 pub mod error;
 
+/// Describe stock quote object
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StockQuote {
+    /// Ticker name
     pub ticker: String,
+    /// Ticker price
     pub price: f64,
+    /// Ticker volume
     pub volume: u32,
+    /// Price timestamp
     pub timestamp: u64,
 }
 
 impl StockQuote {
+    /// Deserialize from json string
     pub fn from_json_str(data: &str) -> Result<Self, QuoteError> {
         serde_json::from_str(data).map_err(QuoteError::Convert)
     }
 
+    /// Serialize to json string
     pub fn to_json_string(&self) -> Result<String, QuoteError> {
         serde_json::to_string(self).map_err(QuoteError::Convert)
     }

@@ -6,6 +6,7 @@ use std::{
     time::Duration,
 };
 
+// Start loop that send PING command to server
 pub fn start_heartbeat_loop(socket: Arc<UdpSocket>, addr: SocketAddr) -> Result<()> {
     loop {
         socket.send_to(b"PING", addr)?;
