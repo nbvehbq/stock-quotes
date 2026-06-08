@@ -97,3 +97,32 @@ impl QuoteGenerator {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_success() {
+        let res = QuoteGenerator::new(None);
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    fn test_new_fail() {
+        let res = QuoteGenerator::new(Some(PathBuf::from("/bad_path")));
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn test_generate_quote_success() {
+        let res = QuoteGenerator::new(None).unwrap();
+        assert!(res.generate_quote("AAPL").is_some())
+    }
+
+    #[test]
+    fn test_generate_quote_fail() {
+        let res = QuoteGenerator::new(None).unwrap();
+        assert!(res.generate_quote("UNKNOWN").is_none())
+    }
+}

@@ -96,3 +96,30 @@ fn load_tickers(path: PathBuf) -> Result<Vec<String>> {
     }
     Ok(res)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use tempfile::NamedTempFile;
+
+    #[test]
+    fn test_load_tickers() {
+        let mut tmp_file = NamedTempFile::new().unwrap();
+        writeln!(tmp_file, "AAPL\nNVDA\nGOGL\n\nCRM\n").unwrap();
+        let path = tmp_file.path();
+
+        let tickers = load_tickers(path.to_path_buf());
+        assert!(tickers.is_ok());
+
+        let tickers = tickers.unwrap();
+        assert_eq!(tickers.len(), 4);
+        assert_eq!(tickers, vec!["AAPL", "NVDA", "GOGL", "CRM"]);
+    }
+
+    #[test]
+    fn test_load_ticker_fail() {
+        let res = load_tickers(PathBuf::from("/bad_path"));
+        assert!(res.is_err());
+    }
+}

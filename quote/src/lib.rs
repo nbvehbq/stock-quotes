@@ -32,3 +32,57 @@ impl fmt::Display for StockQuote {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_from_json_str_success() {
+        let data = r#"{"ticker":"AAPL","price":0.12,"volume":100,"timestamp":1780655430369}"#;
+        let res = StockQuote::from_json_str(data);
+        assert!(res.is_ok());
+        let res = res.unwrap();
+        assert_eq!(res.ticker, "AAPL".to_string());
+        assert_eq!(res.price, 0.12);
+        assert_eq!(res.volume, 100);
+        assert_eq!(res.timestamp, 1780655430369);
+    }
+
+    #[test]
+    fn test_from_json_str_fail() {
+        let data = "BAD";
+        assert!(matches!(
+            StockQuote::from_json_str(data),
+            Err(QuoteError::Convert(_))
+        ));
+    }
+
+    #[test]
+    fn test_to_json_string() {
+        let data = StockQuote {
+            ticker: "AAPL".to_string(),
+            price: 3.45,
+            volume: 100,
+            timestamp: 1780655430369,
+        };
+        let expected = r#"{"ticker":"AAPL","price":3.45,"volume":100,"timestamp":1780655430369}"#;
+
+        let res = data.to_json_string().unwrap();
+
+        assert_eq!(res, expected);
+    }
+
+    #[test]
+    fn test_to_string() {
+        let data = StockQuote {
+            ticker: "AAPL".to_string(),
+            price: 3.45,
+            volume: 100,
+            timestamp: 1780655430369,
+        };
+        let expected = r#"AAPL: price: 3.45 volume: 100, time: 1780655430369"#;
+
+        assert_eq!(expected, data.to_string());
+    }
+}
