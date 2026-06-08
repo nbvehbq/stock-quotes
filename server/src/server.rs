@@ -38,9 +38,7 @@ pub fn handle_client(
                         log::info!("STREAM: {:?} - {}", addr, tickers);
 
                         let (tx, rx) = mpsc::channel::<StockQuote>();
-                        let mut guard = clients
-                            .try_lock()
-                            .map_err(|e| QuoteServerError::Lock(e.to_string()))?;
+                        let mut guard = clients.lock().unwrap();
 
                         guard.insert(addr, (tx, Instant::now()));
 

@@ -18,9 +18,7 @@ pub fn start_receive_loop(
             Ok((size, src_addr)) => {
                 if &buf[..size] == b"PING" {
                     log::debug!("Got PING from address: {src_addr}");
-                    let mut guard = clients
-                        .try_lock()
-                        .map_err(|e| QuoteServerError::Lock(e.to_string()))?;
+                    let mut guard = clients.lock().unwrap();
                     if let Some((_, last_ping)) = guard.get_mut(&src_addr) {
                         *last_ping = Instant::now();
                     }
